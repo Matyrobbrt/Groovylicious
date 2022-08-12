@@ -24,3 +24,5 @@ pluginManagement {
 }
 
 rootProject.name = 'Groovylicious'
+
+include 'loader'
