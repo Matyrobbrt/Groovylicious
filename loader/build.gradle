@@ -15,36 +15,27 @@ minecraft {
 }
 
 configurations {
+    globalCompile
+    compileOnly.extendsFrom(globalCompile)
+    transformCompileOnly.extendsFrom(globalCompile)
+    testCompileOnly.extendsFrom(globalCompile)
+
+    globalAP
+    annotationProcessor.extendsFrom(globalAP)
+    transformAnnotationProcessor.extendsFrom(globalAP)
+    testAnnotationProcessor.extendsFrom(globalAP)
+
     groovy
-    compileOnly.extendsFrom(groovy)
+    globalCompile.extendsFrom(groovy)
 }
 
 sourceSets {
     transform {
-        groovy {
-            srcDir 'src/transform/groovy'
-        }
-
-        resources.srcDirs = []
-        resources {
-            srcDir 'src/transform/resources'
-        }
-
         compileClasspath += configurations.getByName('minecraft')
     }
 
-    main {
-        groovy {
-            srcDir 'src/main/groovy'
-        }
-
-        resources {
-            srcDir 'src/main/resources'
-            srcDir 'src/generated/resources'
-        }
-
-        compileClasspath += sourceSets.transform.output
-        runtimeClasspath += sourceSets.transform.output
+    test {
+        compileClasspath += transform.output
     }
 }
 
@@ -56,8 +47,6 @@ sourceSets.each { sourceSet ->
 // let's also delete the unused generated and test folders while we're at it
 final generatedDir = file("src/generated/")
 generatedDir.deleteDir()
-final testDir = file("src/test/")
-testDir.deleteDir()
 
 repositories {
     maven {
@@ -85,6 +74,10 @@ dependencies {
         exclude module: 'groovy-cli-picocli'
         exclude module: 'groovy-groovysh'
     }
+
+    transformCompileOnly sourceSets.main.output
+
+    testCompileOnly sourceSets.main.output
 }
 
 ext {
